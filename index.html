@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Social Data and Visualization, DTU 2017</title>
+    <script src="https://d3js.org/d3.v4.js"></script> <!-- D3 version 4 library -->
+    <script src="d3/tip.js"></script> <!-- tip tool for hovering -->
+
+    <link href="css/bootstrap.min.css" rel="stylesheet"> <!-- Bootstrap Core CSS -->
+    <link href="css/scrolling-nav.css" rel="stylesheet"> <!-- Custom CSS -->
+    <link href="css/plots.css" rel="stylesheet"> <!-- plots CSS -->
+</head>
+
+<!-- The web page are created around [1] -->
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+    <!-- Navigation header -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">Social Data and Visualization</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                    <li class="hidden"> <a class="page-scroll" href="#page-top"></a> </li>
+                    <li> <a class="page-scroll" href="#about">About the Data</a> </li>
+                    <li> <a class="page-scroll" href="#video">Video</a> </li>
+                    <li> <a class="page-scroll" href="#stories">Stories</a> </li>
+                    <li> <a class="page-scroll" href="#bar_stats">Bar Statistics</a> </li>
+                    <li> <a class="page-scroll" href="#TimeSeries">Time Series</a> </li>
+                    <li> <a class="page-scroll" href="#KNN">KNN</a> </li>
+                    <li> <a class="page-scroll" href="#DTREE">DTree</a> </li>
+                    <li> <a class="page-scroll" href="#wather_cor">Weather</a> </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Intro Section -->
+    <section id="intro" class="intro-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" id="area_intro">
+                    <h1>NYPD Motor Vehicle Collisions</h1>
+                    <p>
+                    This interactive heat-map shows the distribution of the accidents in New York City. 
+                    <br>
+                    Click <a class="page-scroll" href="#about">here</a> to go to the "About the Data" page.
+                    <p/>
+                    <iframe src="data/heatmap.html" width="1000" height="550" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+                    <p> The heat-map above shows only 50% of the accidents. The selected accidents are random samples. </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" id="area_about">
+                    <h2> Introduction to NYPD Motor Vehicle Collisions Data Set </h2>
+                    <p>
+                    The NYPD Motor Vehicle Collisions (NYPD MVC) has been downloaded from the following source: <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95/data">NYPD MVC Data [4]</a>.
+                    <br>
+                    The data set used in this project can be downloaded here:: <a href="https://drive.google.com/file/d/0B42GL3RvQcSCWmNSMUxXazFrajQ/view?usp=sharing"> raw_data.csv</a> [4]
+                    and likewise the additional data set containing the weather information of NYC: <a href="https://drive.google.com/open?id=0B42GL3RvQcSCVWotQThvS3ZYcGM"> raw_data_weather.csv</a> [6]. 
+                    
+                    The basic statistic and modelling have been done in the <a href="http://nbviewer.jupyter.org/url/anderslaunerbaek.github.io/Final_project.ipynb"> Jupyter NB</a>.
+                    <h4> NYPD MVC </h4>
+                    <p>
+                    The primary data set contains the following features:
+                    <ul style="list-style-type:circle">
+                        <li>DATE, TIME</li>
+                        <li>BOROUGH, LATITUDE, LONGITUDE</li>
+                        <li>NUMBER OF: PERSONS INJURED, PERSONS KILLED, PEDESTRIANS INJURED, PEDESTRIANS KILLED, NUMBER OF CYCLIST INJURED, CYCLIST KILLED, MOTORIST INJURED, MOTORIST KILLED</li>
+                        <li>CONTRIBUTING FACTOR VEHICLE: 1, 2, 3, 4, 5</li>
+                        <li>VEHICLE TYPE CODE: 1, 2, 3, 4, 5</li>
+                        <li>ZIP CODE, LOCATION, UNIQUE KEY, ON STREET NAME,CROSS STREET NAME,OFF STREET NAME</li>
+                    </ul>
+                    and the data set has 601313 samples and 23 features.
+
+                    <h5> Selections of Filters </h5>
+                    <p>
+                    It has been chosen to set filters and hereby "pre-clean" the data before downloading the data set from NYPD MVC Data [4]. 
+                    The raw data set includes the following filters:
+                    <ul style="list-style-type:circle">
+                        <li> The date of the accidents is between 01/01/2013 and 12/31/2016 </li> 
+                        It has been chosen to include four full years of observations. 
+                        <li>BOROUGH, LATITUDE and LONGITUDE must not be "na"</li>
+                        The three filters exclude roughly 30% of the data from the given period but GEO-location is required in this project.
+                    </ul>
+                    </p>
+                    The following new features have been created in the data manipulation phase:
+                    <ul style="list-style-type:circle">
+                        <li>YEAR, HOUR, TIME_DEC, MONTH</li>
+                        <li>KNN_DTree is a self defined feature which takes following values [0,1,2,3] for non injured nor killed, injured, killed, injured and killed respectively. These are the four classes used in the prediction tools. </li>
+                    </ul>
+
+                    <h4> NOAA, Climate Data Online </h4>
+                    <p>
+                    The secondary data set [6] contains the following interesting features:
+                    <ul style="list-style-type:circle">
+                        <li>DATE, PRCP, SNOW, SNWD, TMIN, TMAX</li>
+                    </ul>
+                    despite 175 others. There are in total 35176 samples from each day in the given period.
+                    See <a href="http://nbviewer.jupyter.org/url/anderslaunerbaek.github.io/Final_project.ipynb"> Jupyter NB</a> for further data manipulation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section id="video" class="video-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="text-justify">Video Presentation</h2>
+                    <p class="text-justify">
+                    The video has a length of 03:30. The fist 20 seconds are introduction and the music is fading out in the last 15 seconds of the video.
+                    </p>
+                    <div style="position:relative;height:0;padding-bottom:56.25%">
+                    <iframe src="https://player.vimeo.com/video/216286253" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+                    <p><a href="https://vimeo.com/216286253">Social Data and Visualization</a> from <a href="https://vimeo.com/user66304039">Anders Bæk</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stories Sections -->
+    <section id="stories" class="stoires-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2> Data Stories</h2>
+                    <p>  
+                    The main purpose of this web page is to provide data exploration opportunities. The conclusion of the illustrations are kept to a minimum. This gives the reader the opportunities to actively find her/his own interesting stories.
+                    <br>
+                    <br>                  
+                    Please click on the buttons below to explore your own findings in the data sets:
+
+                    <ul style="list-style-type:circle">
+                        <li>Short introduction to each data set. <br> <a class="page-scroll" href="#about">About the Data</a></li>
+                        <li>The bar plots gives great views of how the different types of the accidents are distributed in a day. <br> <a class="page-scroll" href="#bar_stats">Bar Statistics</a></li>
+                        <li>The time series plots can be used to visual spotting seasonality within the accidents. <br> <a class="page-scroll" href="#TimeSeries">Time Series</a></li>
+                        <li>The K-Nearest Neighbors algorithm have been used as a prediction tool. <br> <a class="page-scroll" href="#KNN">KNN</a></li>
+                        <li>A Decision Tree has also been used as a prediction tool. <br> <a class="page-scroll" href="#DTREE">DTree</a></li>
+                        <li>Simple statistics have been applied in order to find possible correlations between weather  and accidents. <br> <a class="page-scroll" href="#wather_cor">Weather</a></li>
+                        <li>The references are placed at the bottom of this web page. <br> <a class="page-scroll" href="#wather_cor">References</a></li>
+                    </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- Bar Sections -->
+    <section id="bar_stats" class="bar-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" id="area_bar_stats">
+                    <h3> Bar Statistics</h3>
+                    <p> This plot shows the distribution of accidents for each hour of the day. It is possible to toggle between the different boroughs in New York City and the consequence of the accidents. <br>
+                    The bar plot shows the complete number of accidents for New York City by default.
+                    </p>
+                    <select id="area_bar_stats_level1">
+                        <option value="NYC">New York City</option>
+                        <option value="BRONX">Bronx</option>
+                        <option value="BROOKLYN">Brooklyn</option>
+                        <option value="STATEN_ISLAND">Staten Island</option>
+                        <option value="MANHATTAN">Manhatten</option>
+                        <option value="QUEENS">Queens</option>
+                    </select>
+                        <select id="area_bar_stats_level2">
+                        <option value="">Total</option>
+                        <option value="_non">Non injured nor killed</option>
+                        <option value="_inj">Injured</option>
+                        <option value="_kill">Killed</option>
+                    </select>
+                    <script src="d3/des_stats_bar.js"></script>
+                    <p> The bars above shows the complete number of accidents and not the aggregated amount of persons affected in each accident.  <p/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TS Sections -->
+    <section id="TimeSeries" class="TimeSeries-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" id="area_TimeSeries">
+                    <h3> Time Series Plots</h3>
+                    <p> This page shows time series plots, which is useful for finding seasonality within the accidents. It is possible to toggle between the different boroughs in New York City, involved parties such as: "Pedestrians", "Cyclists" and "Motorists". <br>
+                    The time series plot shows by default three series: "Non injured nor killed", "injured" and "killed" for New York City. The values of the series are scaled ([0,1]) in order to easier be able to compare the series.
+                    </p>
+                    <select id="area_TimeSeries_level1">
+                        <option value="NYC">New York City</option>
+                        <option value="BRONX">Bronx</option>
+                        <option value="BROOKLYN">Brooklyn</option>
+                        <option value="STATEN ISLAND">Staten Island</option>
+                        <option value="MANHATTAN">Manhattan</option>
+                        <option value="QUEENS">Queens</option>
+                    </select>
+                        <select id="area_TimeSeries_level2">
+                        <option value="ped">Pedestrians</option>
+                        <option value="cyc">Cyclists</option>
+                        <option value="mot">Motorists</option>
+                    </select>
+                    </select>
+                        <select id="area_TimeSeries_level3">
+                        <option value="all">All three plots</option>
+                        <option value="non">Non injured nor killed</option>
+                        <option value="inj">Injured</option>
+                        <option value="kill">Killed</option>
+                    </select>
+                    <script src="d3/ts_acc.js"></script>
+                    <p> Around the Saturdays in August 2016 there are something going on. By a quick search [3] on the web, is was possible to find overlapping days where the citizens of New York City are celebrating their street. The Summer Street events seems as a reasonable reason of the very low level of accidents. 
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- KNN Sections -->
+    <section id="KNN" class="KNN-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" id="area_KNN">
+                    <h3> K-Nearest Neighbors</h3>
+                    <p>
+                    The parameters of the K-Nearest Neighbors algorithm have been optimized by using the cross-validation. The lowest classification error is about 18% when considering 15 or more neighbors. This is the same as the base line prediction. 
+                    <br>
+                    There has been generated random simples in order to show the KNN classifications based upon the following features and labels:
+                    <ul style="list-style-type:circle">
+                        <li>Observations: LATITUDE, LONGITUDE, TIME_DEC, MONTH:</li>
+                        <li>Classes: KNN_DTree:</li>
+                    </ul>
+                    The classification information is placed on the left of the visualization. 
+                    <br>
+                    Further more it is possible to toggle between the four classes in this drop down:
+                    </select>
+                        <select id="area_KNN_level1">
+                        <option value="knn_class_all">All</option>
+                        <option value="knn_class_0">Non injured nor killed</option>
+                        <option value="knn_class_1">Injured</option>
+                        <option value="knn_class_2">Killed</option>
+                        <option value="knn_class_3">Injured and killed</option>
+                    </select>
+                    </p>
+                    <script src="d3/knn_plot.js"></script>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DTree Sections -->
+    <section id="DTREE" class="DTREE-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" id="area_DTREE">
+                    <h3> Decision Tree</h3>
+                    <p>
+                    In this model the decision tree is used as a a prediction tool with the same mentioned features as in the <a class="page-scroll" href="#KNN">KNN</a>.
+                    <br>
+                    There is a trade off between classification error on train and test data, as the depth of the tree increases the complexity is growing.
+                    <br>
+                    As the complexity increases the classification error of the training data is decreasing and the classification error of the test data is increasing due to over fitting. In other words the decision tree is fitting the noise from the training data.
+                    <br>
+                    <br>
+                    The plot of the tree below is included because it is nice. The inspiration is from [2]. For illustration purpose a three with max depth of 2 and the "optimal" three with a depth if 18 are found in this drop down:
+                    </select>
+                        <select id="area_DTREE_level1">
+                        <option value="2">Max depth: 2</option>
+                        <option value="18">Optimal DTree</option>
+                    </select>
+                    </p>
+                    
+                    <script src="d3/dtree.js"></script>
+                    <p>
+                    You move up if a split is true. The importances of the features are shown below the tree and the distribution of the predicted classes are shown right of the tree.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Weather Sections -->
+    <section id="wather_cor" class="wather_cor-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" id="area_W_cor">
+                    <h3> The Correlation between Weather and Accidents</h3>
+                    <p> 
+                    The table below is a correlation matrix containing six features from the NYPD MVC data set and five features from the NOAA data set.
+                    <br>
+                    An average for all weather features have been calculated for each unique day and the accidents have been summed for each unique day. 
+                    Afterwards each series have been normalized in order to calculate the correlation matrix showed below.
+                    <br>
+                    <br>
+                    The highest correlation coefficients between weather features and accidents are: 
+                    <ul style="list-style-type:circle">
+                        <li><b>x1</b> and <b>TMIN</b></li>
+                        <li><b>x1</b> and <b>TMAX</b></li>
+                    </ul>
+                    </p>
+                    <table class="dataframe">
+                      <thead>
+                        <tr style="text-align: right;">
+                          <th></th>
+                          <th>x1</th>
+                          <th>x2</th>
+                          <th>x3</th>
+                          <th>x4</th>
+                          <th>x5</th>
+                          <th>x6</th>
+                          <th>PRCP</th>
+                          <th>SNOW</th>
+                          <th>SNWD</th>
+                          <th>TMAX</th>
+                          <th>TMIN</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th>x1</th>
+                          <td>1</td>
+                          <td>0.075844</td>
+                          <td>0.447089</td>
+                          <td>0.061087</td>
+                          <td>0.124347</td>
+                          <td>0.035417</td>
+                          <td>-0.043416</td>
+                          <td>-0.182961</td>
+                          <td>-0.317890</td>
+                          <td><b>0.598722</b></td>
+                          <td><b>0.571137</b></td>
+                        </tr>
+                        <tr>
+                          <th>x2</th>
+                          <td>0.075844</td>
+                          <td>1</td>
+                          <td>0.038137</td>
+                          <td>-0.010208</td>
+                          <td><b>0.001168</b></td>
+                          <td>-0.037242</td>
+                          <td>0.011759</td>
+                          <td>-0.002439</td>
+                          <td>-0.039692</td>
+                          <td>0.062087</td>
+                          <td>0.057396</td>
+                        </tr>
+                        <tr>
+                          <th>x3</th>
+                          <td>0.447089</td>
+                          <td>0.038137</td>
+                          <td>1</td>
+                          <td>0.107738</td>
+                          <td>0.369973</td>
+                          <td>0.089021</td>
+                          <td>0.021251</td>
+                          <td>-0.128396</td>
+                          <td>-0.199514</td>
+                          <td>0.151922</td>
+                          <td>0.138497</td>
+                        </tr>
+                        <tr>
+                          <th>x4</th>
+                          <td>0.061087</td>
+                          <td>-0.010208</td>
+                          <td>0.107738</td>
+                          <td>1</td>
+                          <td>0.011298</td>
+                          <td>0.065422</td>
+                          <td>-0.016746</td>
+                          <td>-0.035478</td>
+                          <td>-0.047999</td>
+                          <td>0.015240</td>
+                          <td>0.015427</td>
+                        </tr>
+                        <tr>
+                          <th>x5</th>
+                          <td>0.124347</td>
+                          <td><b>0.001168</b></td>
+                          <td>0.369973</td>
+                          <td>0.011298</td>
+                          <td>1</td>
+                          <td>0.170527</td>
+                          <td>0.125838</td>
+                          <td>-0.059256</td>
+                          <td>-0.043971</td>
+                          <td>-0.246119</td>
+                          <td>-0.236963</td>
+                        </tr>
+                        <tr>
+                          <th>x6</th>
+                          <td>0.035417</td>
+                          <td>-0.037242</td>
+                          <td>0.089021</td>
+                          <td>0.065422</td>
+                          <td>0.170527</td>
+                          <td>1</td>
+                          <td>-0.012422</td>
+                          <td>-0.026144</td>
+                          <td>-0.036138</td>
+                          <td>-0.050011</td>
+                          <td>-0.053079</td>
+                        </tr>
+                        <tr>
+                          <th>PRCP</th>
+                          <td>-0.043416</td>
+                          <td>0.011759</td>
+                          <td>0.021251</td>
+                          <td>-0.016746</td>
+                          <td>0.125838</td>
+                          <td>-0.012422</td>
+                          <td>1</td>
+                          <td>0.255598</td>
+                          <td>0.073868</td>
+                          <td>-0.017971</td>
+                          <td>0.030710</td>
+                        </tr>
+                        <tr>
+                          <th>SNOW</th>
+                          <td>-0.182961</td>
+                          <td>-0.002439</td>
+                          <td>-0.128396</td>
+                          <td>-0.035478</td>
+                          <td>-0.059256</td>
+                          <td>-0.026144</td>
+                          <td>0.255598</td>
+                          <td>1</td>
+                          <td>0.515800</td>
+                          <td>-0.232221</td>
+                          <td>-0.218515</td>
+                        </tr>
+                        <tr>
+                          <th>SNWD</th>
+                          <td>-0.317890</td>
+                          <td>-0.039692</td>
+                          <td>-0.199514</td>
+                          <td>-0.047999</td>
+                          <td>-0.043971</td>
+                          <td>-0.036138</td>
+                          <td>0.073868</td>
+                          <td>0.515800</td>
+                          <td>1</td>
+                          <td>-0.397567</td>
+                          <td>-0.415229</td>
+                        </tr>
+                        <tr>
+                          <th>TMAX</th>
+                          <td><b>0.598722</b></td>
+                          <td>0.062087</td>
+                          <td>0.151922</td>
+                          <td>0.015240</td>
+                          <td>-0.246119</td>
+                          <td>-0.050011</td>
+                          <td>-0.017971</td>
+                          <td>-0.232221</td>
+                          <td>-0.397567</td>
+                          <td>1</td>
+                          <td><b>0.967120</b></td>
+                        </tr>
+                        <tr>
+                          <th>TMIN</th>
+                          <td><b>0.571137</b></td>
+                          <td>0.057396</td>
+                          <td>0.138497</td>
+                          <td>0.015427</td>
+                          <td>-0.236963</td>
+                          <td>-0.053079</td>
+                          <td>0.030710</td>
+                          <td>-0.218515</td>
+                          <td>-0.415229</td>
+                          <td><b>0.967120</b></td>
+                          <td>1</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p>
+                    <br>
+                    where: <br>
+                    <b>x1</b> = Sum. NUMBER OF CYCLIST INJURED <br> 
+                    <b>x2</b> = Sum. NUMBER OF CYCLIST KILLED<br>
+                    <b>x3</b> = Sum. NUMBER OF MOTORIST INJURED<br>
+                    <b>x4</b> = Sum. NUMBER OF MOTORIST KILLED<br>
+                    <b>x5</b> = Sum. NUMBER OF PEDESTRIANS INJURED<br>
+                    <b>x6</b> = Sum. NUMBER OF PEDESTRIANS KILLED<br>
+                    <b>PRCP</b> = Avg. Precipitation (mm)<br>
+                    <b>SNOW</b> = Avg. Snowfall (mm)<br>
+                    <b>SNWD</b> = Avg. Snow depth (mm)<br>
+                    <b>TMAX</b> = Avg. Maximum temperature (Celsius)<br>
+                    <b>TMIN</b> = Avg. Minimum temperature (Celsius)<br>
+                    </p>
+
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <h2> References </h2>
+                    <p>
+                    [1] Start Bootstrap, Scrolling Nav, <a href="https://github.com/BlackrockDigital/startbootstrap-scrolling-nav">url</a> (visited on 6/5-2017). <br>
+
+                    [2] Aaron Schumacher, See sklearn trees with D3, <a href="http://planspace.org/20151129-see_sklearn_trees_with_d3/">url</a> (visited on 6/5-2017). <br>
+
+                    [3] NYC GOV, <a href="http://www.nyc.gov/html/dot/summerstreets/html/home/home.shtml">url</a> (visited on 6/5-2017). <br>
+
+                    [4] NYPD MVC Data, <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95/data">url</a> (visited on 6/5-2017). <br>
+
+                    [5] DTU Course 02450, Toolbox. <br>
+
+                    [6] NOAA, Climate Data Online, <a href="https://www.ncdc.noaa.gov/cdo-web/">url</a> (visited on 6/5-2017). <br>
+
+                    [7] NOAA, Data sheet, <a href="https://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCND_documentation.pdf">url</a> (visited on 6/5-2017).
+
+
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Bootstrap template -->
+    <script src="bootstrap tmp/jquery.js"></script> <!-- jQuery -->
+    <script src="bootstrap tmp/bootstrap.min.js"></script> <!-- Bootstrap Core JavaScript -->
+    <script src="bootstrap tmp/jquery.easing.min.js"></script> <!-- Scrolling Nav JavaScript -->
+    <script src="bootstrap tmp/scrolling-nav.js"></script> <!-- Scrolling Nav JavaScript -->
+</body>
+</html>

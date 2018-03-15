@@ -1,0 +1,148 @@
+text.title {
+    text-anchor: middle;  
+    font-size: 12pt;
+    font-family: sans-serif;
+}
+
+.area {
+  fill: none;
+  clip-path: url(#clip);
+  stroke: steelblue;
+  stroke-width: 0.5px;
+}
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+
+/*.ts.line.tot {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 0.5px;
+  opacity: 0.5;
+}*/
+
+.ts.line.kill {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 0.5px;
+  opacity: 0.5;
+}
+
+.ts.line.inj {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 0.5px;
+  opacity: 0.5;
+}
+
+.ts.line.non {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 0.5px;
+  opacity: 0.5;
+}
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+
+.axis {
+    font-size: 8pt;
+    font-family: sans-serif;
+}
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+.x.axis path {
+    display: none;
+}
+.weg.axis path {
+    display: none;
+}
+.y.axis path {
+    display: none;
+}
+
+.d3-tip {
+    line-height: 1;
+    font-size: 8pt;
+    font-family: sans-serif;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+}
+
+/*Table*/
+.dataframe {
+  border-collapse:collapse;
+  border-spacing:0;
+  border-style: hidden;
+}
+.dataframe td {
+  /*font-family:Arial, sans-serif;*/
+  font-size:12px;
+  padding:5px 5px;
+  /*border-style:solid;*/
+  border: 0.001px solid rgba(0, 0, 0, 0.1);
+  overflow:hidden;
+  word-break:normal;
+}
+.dataframe th{
+  /*font-family:Arial, sans-serif;*/
+  font-size:12px;
+  /*font-weight:normal;*/
+  padding:5px 5px;
+  /*border-style:solid;*/
+  border: 0.001px solid rgba(0, 0, 0, 0);
+  overflow:hidden;
+  word-break:normal;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
